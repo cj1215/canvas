@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>箭头</title>
+  <title>Document</title>
   <style>
     body,
     html {
@@ -28,21 +28,32 @@
     const ctx = canvas.getContext('2d')
     let W = canvas.width = 800
     let H = canvas.height = 600
-    // 鼠标在画布上的位置
-    let mouse = C.getOffset(canvas)
+    // 箭头实例
     const arrow = new Arrow({
       x: W / 2,
       y: H / 2,
-      w: 180,
+      w: 140,
       h: 60
     }).render(ctx)
-    canvas.onmousemove = function () {
+    let speed = 3 // 速度
+    let mouse = C.getOffset(canvas) // 鼠标在canvas中的坐标
+    !(function move() {
+      window.requestAnimationFrame(move)
+      ctx.clearRect(0, 0, W, H)
+
       let dx = mouse.x - arrow.x
       let dy = mouse.y - arrow.y
-      arrow.rotation = Math.atan2(dy, dx)
-      ctx.clearRect(0, 0, W, H)
+      let angle = Math.atan2(dy, dx)
+      if (Math.abs(dx) > 2 && Math.abs(dy) > 2) {
+        let vx = speed * Math.cos(angle)
+        let vy = speed * Math.sin(angle)
+        arrow.x += vx
+        arrow.y += vy
+        arrow.rotation = angle
+      }
+
       arrow.render(ctx)
-    }
+    })()
   </script>
 </body>
 

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>椭圆运动</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let W = canvas.width = 800
+    let H = canvas.height = 600
+    const ball = new Ball({
+      x: W / 2,
+      y: H / 2,
+      r: 35,
+    }).render(ctx)
+
+    let angle = 0 // 起始弧度
+    let speed = 0.02 // 运动速度
+    let rx = 200 // x轴半径
+    let ry = 80  // y轴半径
+
+    !(function move() {
+      window.requestAnimationFrame(move)
+      ctx.clearRect(0, 0, W, H)
+
+      // 画一个椭圆的运动轨迹
+      ctx.save()
+      ctx.translate(W / 2, H / 2)
+      ctx.scale(1, 0.4) // x轴不缩放，y轴半径为80,80/200=0.4，所以y轴要缩放比列为0.4
+      ctx.beginPath()
+      ctx.arc(0, 0, rx, 0, Math.PI * 2)
+      ctx.stroke()
+      ctx.restore()
+
+      ball.x = W / 2 + rx * Math.cos(angle)
+      ball.y = H / 2 + ry * Math.sin(angle)
+      // angle += 0.01 // 顺时针运动
+      angle -= 0.01 // 逆时针运动
+      angle %= Math.PI * 2
+
+      ball.render(ctx)
+    })()
+
+  </script>
+</body>
+
+</html>

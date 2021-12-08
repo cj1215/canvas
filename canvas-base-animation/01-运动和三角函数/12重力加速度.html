@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>箭头</title>
+  <title>重力加速度</title>
   <style>
     body,
     html {
@@ -22,27 +22,34 @@
 <body>
   <canvas id="canvas"></canvas>
   <script src="../assets/script/utils.js"></script>
-  <script src="../assets/components/Arrow.js"></script>
+  <script src="../assets/components/Ball.js"></script>
   <script>
     const canvas = document.getElementById('canvas')
     const ctx = canvas.getContext('2d')
     let W = canvas.width = 800
     let H = canvas.height = 600
-    // 鼠标在画布上的位置
-    let mouse = C.getOffset(canvas)
-    const arrow = new Arrow({
+    // 小球实例
+    const ball = new Ball({
       x: W / 2,
-      y: H / 2,
-      w: 180,
-      h: 60
+      y: 70,
+      r: 30
     }).render(ctx)
-    canvas.onmousemove = function () {
-      let dx = mouse.x - arrow.x
-      let dy = mouse.y - arrow.y
-      arrow.rotation = Math.atan2(dy, dx)
+
+    let g = 0.2 // 重力加速度
+    let vy = 0
+
+    !(function move() {
+      window.requestAnimationFrame(move)
       ctx.clearRect(0, 0, W, H)
-      arrow.render(ctx)
-    }
+
+      ball.y += vy
+      vy += g
+      if (ball.y + ball.r >= H) {
+        ball.y = H - ball.r
+        vy *= -0.8
+      }
+      ball.render(ctx)
+    })()
   </script>
 </body>
 

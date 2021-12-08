@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>箭头</title>
+  <title>任意方向上的加速度</title>
   <style>
     body,
     html {
@@ -22,27 +22,38 @@
 <body>
   <canvas id="canvas"></canvas>
   <script src="../assets/script/utils.js"></script>
-  <script src="../assets/components/Arrow.js"></script>
+  <script src="../assets/components/Ball.js"></script>
   <script>
     const canvas = document.getElementById('canvas')
     const ctx = canvas.getContext('2d')
     let W = canvas.width = 800
     let H = canvas.height = 600
-    // 鼠标在画布上的位置
-    let mouse = C.getOffset(canvas)
-    const arrow = new Arrow({
-      x: W / 2,
-      y: H / 2,
-      w: 180,
-      h: 60
+    // 小球实例
+    const ball = new Ball({
+      x: 50,
+      y: 50,
+      r: 30
     }).render(ctx)
-    canvas.onmousemove = function () {
-      let dx = mouse.x - arrow.x
-      let dy = mouse.y - arrow.y
-      arrow.rotation = Math.atan2(dy, dx)
+
+    let angle = C.toRad(30) // 将角度转换成弧度
+    let a = 0.1 // 加速度
+    let vx = 0 // x轴速度
+    let vy = 0 // y轴速度
+
+    !(function move() {
+      window.requestAnimationFrame(move)
       ctx.clearRect(0, 0, W, H)
-      arrow.render(ctx)
-    }
+
+      let ax = a * Math.cos(angle) // x轴的加速度
+      let ay = a * Math.sin(angle) // y轴的加速度
+
+      ball.x += vx
+      ball.y += vy
+      vx += ax
+      vy += ay
+
+      ball.render(ctx)
+    })()
   </script>
 </body>
 

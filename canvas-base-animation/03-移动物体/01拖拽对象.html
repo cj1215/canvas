@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>拖拽对象</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../assets/script/utils.js"></script>
+  <script src="../assets/components/Ball.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let W = canvas.width = 800
+    let H = canvas.height = 600
+    const ball = new Ball({
+      x: W / 2,
+      y: H / 2,
+      r: 40
+    }).render(ctx)
+
+    let mouse = C.getOffset(canvas)
+    let dx = 0 // 鼠标按下时，鼠标x轴跟小球x轴的差值
+    let dy = 0 // 鼠标按下时，鼠标y轴跟小球y轴的差值
+    canvas.addEventListener('mousedown', function (e) {
+      e.preventDefault()
+      if (ball.isPoint(mouse)) {
+        // 鼠标在小球内
+        dx = mouse.x - ball.x
+        dy = mouse.y - ball.y
+        canvas.addEventListener('mousemove', moveBallFn)
+        canvas.addEventListener('mouseup', upBallFn)
+      }
+    })
+    function moveBallFn() {
+      ball.x = mouse.x - dx
+      ball.y = mouse.y - dy
+    }
+    function upBallFn() {
+      canvas.removeEventListener('mousemove', moveBallFn)
+      canvas.removeEventListener('mouseup', upBallFn)
+    }
+
+    !(function move() {
+      window.requestAnimationFrame(move)
+      ctx.clearRect(0, 0, W, H)
+      ball.render(ctx)
+    })()
+  </script>
+</body>
+
+</html>

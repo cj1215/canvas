@@ -1,4 +1,42 @@
 // 绘制箭头类
 class Arrow {
-  constructor(props) {}
+  constructor(props) {
+    this.x = 0 // 中心x坐标
+    this.y = 0 // 中心y坐标
+    this.w = 60 // 箭头的宽
+    this.h = 30 // 箭头的高
+    this.rotation = 0 // 箭头旋转的角度
+    this.fillStyle = 'rgb(57,119,224)'
+    this.strokeStyle = 'rgba(0,0,0,0)'
+    Object.assign(this, props)
+    return this
+  }
+  // 指定箭头的绘制路径
+  createPath(ctx) {
+    let { w, h } = this
+    ctx.beginPath()
+    ctx.moveTo(-w / 2, -h / 2)
+    ctx.lineTo(w / 10, -h / 2)
+    ctx.lineTo(w / 10, -h)
+    ctx.lineTo(w / 2, 0)
+    ctx.lineTo(w / 10, h)
+    ctx.lineTo(w / 10, h / 2)
+    ctx.lineTo(-w / 2, h / 2)
+    ctx.closePath()
+    return this
+  }
+  // 绘制箭头
+  render(ctx) {
+    let { fillStyle, strokeStyle, rotation, x, y } = this
+    ctx.save()
+    ctx.strokeStyle = strokeStyle
+    ctx.fillStyle = fillStyle
+    ctx.translate(x, y)
+    ctx.rotate(rotation)
+    this.createPath(ctx)
+    ctx.stroke()
+    ctx.fill()
+    ctx.restore()
+    return this
+  }
 }
