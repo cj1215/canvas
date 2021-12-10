@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>画虚线</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let w = canvas.width = 800
+    let h = canvas.height = 600
+
+    function drawLine(x1, y1, x2, y2, color, width) {
+      ctx.beginPath()
+      ctx.moveTo(x1, y1)
+      ctx.lineTo(x2, y2)
+      ctx.strokeStyle = color
+      ctx.lineWidth = width
+      ctx.stroke()
+      ctx.closePath()
+    }
+
+    /**
+     * width: 要画的虚线总长度
+     * lineWidth：实线部分的长度
+     * intervalWidth：间隔部分的长度
+     * angle:旋转的角度
+     * 
+    */
+    function drawDashLine(width, lineWidth, intervalWidth, angle) {
+      let len = Math.ceil(width / (lineWidth + intervalWidth))
+      let surWidth = width % (lineWidth + intervalWidth)
+      surWidth = surWidth === 0 || surWidth >= lineWidth ? lineWidth : surWidth
+      ctx.save()
+      ctx.translate(100, 100)
+      ctx.rotate(Math.PI / 180 * angle)
+      for (let i = 0; i < len; i++) {
+        if (i === len - 1) {
+          drawLine(i * (lineWidth + intervalWidth), 0, i * (lineWidth + intervalWidth) + surWidth, 0, 'green', 2)
+        } else {
+          drawLine(i * (lineWidth + intervalWidth), 0, + i * (lineWidth + intervalWidth) + lineWidth, 0, 'green', 2)
+        }
+      }
+      ctx.restore()
+    }
+    drawDashLine(110, 10, 5, 10)
+  </script>
+</body>
+
+</html>

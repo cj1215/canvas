@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>圆形进度条</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../../utils/utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let W = canvas.width = 800
+    let H = canvas.height = 600
+
+    function drawArc(x, y, r, sAngle, eAngle, anticlockwise, lineWidth, strokeStyle) {
+      ctx.save()
+      ctx.translate(200, 200)
+      ctx.beginPath()
+      ctx.arc(x, y, r, Math.PI / 180 * sAngle, Math.PI / 180 * eAngle, anticlockwise)
+      ctx.lineWidth = lineWidth
+      ctx.strokeStyle = strokeStyle
+      ctx.stroke()
+      ctx.closePath()
+      ctx.restore()
+    }
+    function drawText(text) {
+      ctx.save()
+      ctx.translate(200, 200)
+      ctx.font = '20px 微软雅黑'
+      ctx.textAlign = 'center'
+      ctx.fillStyle = 'red'
+      ctx.fillText(text, 0, 0,)
+      ctx.restore()
+    }
+    let timer = null
+    !(function draw() {
+      let eAngle = -90
+      let time = 10
+      drawText(time)
+      drawArc(0, 0, 100, 0, 360, false, 10, '#ccc')
+      drawArc(0, 0, 100, -90, eAngle, false, 10, 'red')
+
+      timer = setInterval(() => {
+        eAngle += 36
+        time--
+        if (time <= 0) {
+          clearInterval(timer)
+        }
+        ctx.clearRect(0, 0, W, H)
+        drawText(time)
+        drawArc(0, 0, 100, 0, 360, false, 10, '#ccc')
+        drawArc(0, 0, 100, -90, eAngle, false, 10, 'red')
+      }, 1000);
+    })()
+
+  </script>
+</body>
+
+</html>

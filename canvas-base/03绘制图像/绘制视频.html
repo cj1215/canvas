@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>绘制视频</title>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <video src="../assets/liangliang.mp4" width="800" height="" controls></video>
+  <script>
+    var canvas = document.querySelector('#canvas')
+    var video = document.querySelector('video')
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width = 800
+    var h = canvas.height = 530
+
+    var interId = null
+    // 水印运动起来
+    var vx = 0, vy = 0, angle = Math.PI / 180 * 30, a = 1
+
+    class Text {
+      constructor(props) {
+        this.text = ''
+        this.x = 0
+        this.y = 0
+        this.font = '20px 微软雅黑'
+        this.fillStyle = '#ffffff'
+        this.strokeStyle = '#000000'
+        Object.assign(this, props)
+        return this
+      }
+      render(ctx) {
+        let { text, x, y, font, fillStyle, strokeStyle } = this
+        ctx.save()
+        ctx.font = font
+        ctx.strokeStyle = strokeStyle
+        ctx.fillStyle = fillStyle
+        ctx.strokeText(text, x, y)
+        ctx.fillText(text, x, y)
+        ctx.restore()
+        return this
+      }
+    }
+    const TextIns = new Text({
+      text: '添加水印',
+      x: 20,
+      y: 20
+    })
+    video.onplay = function () {
+      console.log('开始播放了');
+
+      interId = setInterval(() => {
+        ctx.clearRect(0, 0, w, h)
+        ctx.fillRect(0, 0, w, h,)
+        ctx.drawImage(video, 0, 40, 800, 450)
+
+        vx = Math.cos(angle) * a
+        vy = Math.sin(angle) * a
+        TextIns.x += vx
+        TextIns.y += vy
+        TextIns.render(ctx)
+      }, 16);
+    }
+    video.onpause = function () {
+      clearInterval(interId)
+    }
+  </script>
+</body>
+
+</html>

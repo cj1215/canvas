@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>合成</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let W = canvas.width = 800
+    let H = canvas.height = 600
+    // translate(x, y) 移动是将整个坐标尺进行移动，不会影响之前的内容
+    ctx.fillStyle = 'hotpink'
+    ctx.fillRect(0, 0, 100, 100)
+
+    // 将x轴坐标向右移动了300
+    ctx.save()
+    ctx.translate(300, 0)
+    ctx.fillStyle = 'deepskyblue'
+    ctx.fillRect(0, 0, 300, 100)
+    ctx.restore()
+
+    // 恢复到最初的状态，现在坐标尺恢复到了左上角的位置
+    ctx.fillStyle = 'yellow'
+    ctx.fillRect(100, 100, 200, 200)
+  </script>
+</body>
+
+</html>

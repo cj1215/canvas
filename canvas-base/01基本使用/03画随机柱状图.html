@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>随机柱状图</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../../utils/utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let W = canvas.width = 800
+    let H = canvas.height = 600
+
+    ctx.beginPath()
+    ctx.moveTo(100, 100)
+    ctx.lineTo(100, 400)
+    ctx.lineTo(400, 400)
+    ctx.stroke()
+    ctx.closePath()
+
+    for (let i = 0; i < 6; i++) {
+      var height = Math.random() * 280 + 10
+      ctx.fillStyle = C.createColor16()
+      ctx.fillRect(120 + 40 * i, 400 - height, 20, height)
+    }
+
+  </script>
+</body>
+
+</html>

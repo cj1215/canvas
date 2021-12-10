@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>刮刮卡</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      /* box-shadow: 4px 4px 12px rgba(0, 0, 0, .5); */
+    }
+
+    #ggk {
+      margin: 100px auto;
+      width: 400px;
+      height: 100px;
+      position: relative;
+    }
+
+    #ggk .jp {
+      width: 400px;
+      height: 100px;
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-size: 30px;
+      text-align: center;
+      line-height: 100px;
+    }
+
+    #ggk #canvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="ggk">
+    <div class="jp"></div>
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <script>
+    var ggkDom = document.getElementById('ggk')
+    var jpDom = document.querySelector('.jp')
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let W = canvas.width = 400
+    let H = canvas.height = 100
+
+    var arr = [
+      {
+        content: '一等奖：IphoneXs',
+        p: 0.1
+      },
+      {
+        content: '二等奖：华为',
+        p: 0.2
+      },
+      {
+        content: '三等奖：小米',
+        p: 0.3
+      },
+    ]
+    var randomNum = Math.random()
+    if (randomNum < arr[0].p) {
+      jpDom.innerHTML = arr[0].content
+    } else if (randomNum < arr[0].p + arr[1].p) {
+      jpDom.innerHTML = arr[1].content
+    } else if (randomNum < arr[0].p + arr[1].p + arr[2].p) {
+      jpDom.innerHTML = arr[2].content
+    } else {
+      jpDom.innerHTML = '谢谢惠顾'
+    }
+
+    ctx.fillStyle = 'darkgrey'
+    ctx.fillRect(0, 0, 400, 100)
+    ctx.fillStyle = '#fff'
+    ctx.font = "20px 微软雅黑"
+    ctx.fillText('刮刮卡', 180, 50)
+
+    var isDraw = false
+    canvas.onmousedown = function () {
+      isDraw = true
+    }
+    canvas.onmousemove = function (e) {
+      if (isDraw) {
+        var x = e.pageX - ggkDom.offsetLeft
+        var y = e.pageY - ggkDom.offsetTop
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.arc(x, y, 10, 0, Math.PI * 2)
+        ctx.fill()
+      }
+    }
+    canvas.onmouseup = function () {
+      isDraw = false
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>线性小球</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../../utils/utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let W = canvas.width = 800
+    let H = canvas.height = 600
+
+    // ctx.globalCompositeOperation = 'source-out'
+
+    // 画直线
+    function drawLine(x1, y1, x2, y2, color) {
+      ctx.beginPath()
+      ctx.moveTo(x1, y1)
+      ctx.lineTo(x2, y2)
+      ctx.strokeStyle = color || '#000'
+      ctx.stroke()
+      ctx.closePath()
+    }
+    // 画文字
+    function drawText(text, x, y) {
+      ctx.font = '20px 微软雅黑'
+      ctx.textAlign = 'start'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(text, x, y)
+    }
+    // 画小球
+    function drawCircle(x, y, r, color) {
+      ctx.beginPath()
+      ctx.arc(x, y, r, 0, Math.PI * 2)
+      ctx.fillStyle = color || '#000'
+      ctx.fill()
+    }
+    // 创建小球类
+    function Ball(text) {
+      this.x = C.rp([60, 750])
+      this.y = C.rp([60, 500])
+      this.r = C.rp([10, 40])
+      this.color = C.createColor()
+      this.vx = C.rp([1, 2])
+      this.vy = C.rp([1, 2])
+      this.text = text
+    }
+    Ball.prototype.show = function () {
+      this.run()
+      drawCircle(this.x, this.y, this.r, this.color)
+      drawText(this.text, this.x + this.r, this.y)
+
+    }
+    Ball.prototype.run = function () {
+      if (this.x <= this.r || this.x + this.r >= W) {
+        this.vx = - this.vx
+      }
+      if (this.y <= this.r || this.y + this.r >= H) {
+        this.vy = - this.vy
+      }
+      this.x += this.vx
+      this.y += this.vy
+    }
+
+    var titleArr = 'Javascript HTML5前端 JAVA PHP jQuery Canvas CSS CSS3 Angular Bootstrap 全栈工程师 NodeJS React Vue.js'.split(' ')
+    var ballArr = []
+    for (let i = 0; i < 5; i++) {
+      var ball = new Ball(titleArr[i])
+      ballArr.push(ball)
+      ball.show()
+      // 小球连线 
+      for (let j = 0; j < i; j++) {
+        drawLine(ballArr[i].x, ballArr[i].y, ballArr[j].x, ballArr[j].y, ballArr[i].color)
+      }
+    }
+
+    !(function move() {
+      requestAnimationFrame(move)
+      ctx.clearRect(0, 0, W, H)
+      for (let i = 0; i < ballArr.length; i++) {
+        ballArr[i].show()
+        for (let j = 0; j < i; j++) {
+          drawLine(ballArr[i].x, ballArr[i].y, ballArr[j].x, ballArr[j].y, ballArr[i].color)
+        }
+      }
+    })()
+  </script>
+</body>
+
+</html>

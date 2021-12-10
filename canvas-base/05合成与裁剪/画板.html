@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>画板</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      justify-content: flex-start;
+      flex-direction: column;
+      width: 100vw;
+      height: 100vh;
+      padding: 10px;
+    }
+
+    #canvas {
+      flex: 1;
+      border: 1px solid #ccc;
+    }
+
+    .caidan {
+      width: 100vw;
+      height: 100px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+
+    }
+
+    .caidan .btn,
+    .caidan .btn1,
+    .caidan .btn-color,
+    .caidan .btn2 {
+      width: 200px;
+      height: 50px;
+      line-height: 50px;
+      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .caidan .btn.active,
+    .caidan .btn1.active {
+      box-shadow: 0 0 20px deepskyblue;
+      border: 1px solid deepskyblue;
+    }
+
+    .line {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .line::after {
+      content: '';
+      display: block;
+      width: 6px;
+      height: 6px;
+      background: #333;
+      border-radius: 50%;
+    }
+
+    .line.normal::after {
+      width: 16px;
+      height: 16px;
+    }
+
+    .line.cu::after {
+      width: 32px;
+      height: 32px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="caidan">
+    <div class="btn active" id="huabi">画笔</div>
+    <div class="btn" id="rect">矩形</div>
+    <div class="btn" id="arc">圆形</div>
+    <div class="btn" id="eraser">橡皮擦</div>
+    <div class="btn2 download">下载图片</div>
+    <div class="btn1 line xi active"></div>
+    <div class="btn1 line normal"></div>
+    <div class="btn1 line cu"></div>
+    <div class="btn-color">
+      <input type="color" id="color">
+    </div>
+  </div>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    /**
+     * 画笔功能：能够拖动鼠标在页面内绘图，能够设置画笔的粗细，设置画笔的颜色
+     * 能够在任意位置绘制圆形，拖动鼠标即可随意在任意位置绘制圆形，并且可以随意定制大小
+     * 能够在任意位置绘制矩形，拖动鼠标即可随意在任意位置绘制矩形，并且可以随意定制大小
+     * **/
+    var allBtn = document.querySelectorAll('.btn')
+    var lineBtn = document.querySelectorAll('.line')
+    var canvas = document.getElementById('canvas')
+    var w = canvas.width = canvas.offsetWidth
+    var h = canvas.height = canvas.offsetHeight
+    var ctx = canvas.getContext('2d')
+
+    var huaban = {
+      type: 'huabi',
+      isDraw: false,
+      imageData: null,
+      beginX: 0, // 鼠标按下时x的位置
+      beginY: 0,// 鼠标按下时y的位置
+      lineWidth: 6, // 线宽
+      color: '#000',
+      eraserSize: 10, // 橡皮擦大小
+      huabiFn: function (e) {
+        var x = e.pageX - canvas.offsetLeft
+        var y = e.pageY - canvas.offsetTop
+        ctx.lineTo(x, y)
+        ctx.strokeStyle = huaban.color
+        ctx.lineWidth = huaban.lineWidth
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        ctx.stroke()
+      },
+      // 矩形
+      rectFn: function (e) {
+        var x = e.pageX - canvas.offsetLeft
+        var y = e.pageY - canvas.offsetTop
+        ctx.clearRect(0, 0, w, h)
+        if (huaban.imageData !== null) {
+          ctx.putImageData(huaban.imageData, 0, 0)
+        }
+        ctx.beginPath()
+        ctx.rect(huaban.beginX, huaban.beginY, x - huaban.beginX, y - huaban.beginY)
+        ctx.fillStyle = huaban.color
+        ctx.fill()
+        ctx.closePath()
+      },
+      // 圆形
+      arcFn: function (e) {
+        var x = e.pageX - canvas.offsetLeft
+        var y = e.pageY - canvas.offsetTop
+        ctx.clearRect(0, 0, w, h)
+        if (huaban.imageData !== null) {
+          ctx.putImageData(huaban.imageData, 0, 0)
+        }
+        ctx.beginPath()
+        ctx.arc(huaban.beginX + (x - huaban.beginX) / 2, huaban.beginY + (y - huaban.beginY) / 2, Math.abs((x - huaban.beginX) / 2), 0, Math.PI * 2)
+        ctx.strokeStyle = huaban.color
+        ctx.lineWidth = huaban.lineWidth
+        ctx.stroke()
+        ctx.closePath()
+      },
+      // 橡皮擦
+      eraserFn: function (e) {
+        var x = e.pageX - canvas.offsetLeft
+        var y = e.pageY - canvas.offsetTop
+        ctx.save()
+        ctx.beginPath()
+        ctx.arc(x, y, huaban.eraserSize, 0, Math.PI * 26)
+        // ctx.clip()
+        // ctx.clearRect(x - huaban.eraserSize / 2, y - huaban.eraserSize / 2, huaban.eraserSize, huaban.eraserSize)
+        ctx.fillStyle = '#fff'
+        ctx.fill()
+        ctx.closePath()
+        ctx.restore()
+      }
+    }
+
+    allBtn.forEach(item => {
+      item.onclick = function (e) {
+        e = e || window.event
+        allBtn.forEach(item1 => item1.classList.remove('active'))
+        e.target.classList.add('active')
+        huaban.type = e.target.id
+      }
+    })
+    // 设置粗细的按钮
+    lineBtn.forEach(item => {
+      item.onclick = function (e) {
+        e = e || window.event
+        lineBtn.forEach(item1 => item1.classList.remove('active'))
+        e.target.classList.add('active')
+        if (Array.from(e.target.classList).find(v => v === 'xi')) {
+          huaban.lineWidth = 6
+        }
+        if (Array.from(e.target.classList).find(v => v === 'normal')) {
+          huaban.lineWidth = 16
+        }
+        if (Array.from(e.target.classList).find(v => v === 'cu')) {
+          huaban.lineWidth = 32
+        }
+      }
+    })
+    // 颜色改变事件
+    var colorInput = document.querySelector('#color')
+    colorInput.onchange = function (e) {
+      e = e || window.event
+      huaban.color = e.target.value
+    }
+    // 下载图片
+    var downloadBtn = document.querySelector('.download')
+    downloadBtn.onclick = function () {
+      var dataUrl = canvas.toDataURL()
+      var img = new Image()
+      img.src = dataUrl
+      img.onload = function () {
+
+      }
+      var a = document.createElement('a')
+      a.style.display = 'none'
+      a.href = dataUrl
+      a.setAttribute('download', '图片')
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    }
+
+    // 监听鼠标按下事件
+    canvas.onmousedown = function (e) {
+      huaban.isDraw = true
+      if (huaban.type == 'rect' || huaban.type == 'arc') {
+        huaban.beginX = e.pageX - canvas.offsetLeft
+        huaban.beginY = e.pageY - canvas.offsetTop
+      }
+      if (huaban.type == 'huabi') {
+        var x = huaban.beginX = e.pageX - canvas.offsetLeft
+        var y = huaban.beginY = e.pageY - canvas.offsetTop
+        ctx.beginPath()
+        ctx.moveTo(x, y)
+      }
+    }
+    // 监听鼠标抬起事件
+    canvas.onmouseup = function () {
+      huaban.imageData = ctx.getImageData(0, 0, w, h)
+      huaban.isDraw = false
+      if (huaban.type === 'huabi') {
+        ctx.closePath()
+      }
+    }
+    // 监听鼠标移动事件
+    canvas.onmousemove = function (e) {
+      if (huaban.isDraw) {
+        huaban[huaban.type + 'Fn'](e)
+      }
+    }
+  </script>
+</body>
+
+</html>

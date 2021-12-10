@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>画直线</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let w = canvas.width = 800
+    let h = canvas.height = 600
+
+    function drawLine(x1, y1, x2, y2, color, width) {
+      ctx.beginPath()
+      ctx.moveTo(x1, y1)
+      ctx.lineTo(x2, y2)
+      ctx.strokeStyle = color
+      ctx.lineWidth = width
+      ctx.stroke()
+      ctx.closePath()
+    }
+
+    drawLine(100, 100, 400, 100, 'red', 1)
+    drawLine(400, 100, 400, 400, 'red', 1)
+    drawLine(400, 400, 100, 400, 'red', 1)
+    drawLine(100, 400, 100, 100, 'red', 1)
+
+
+    // lineTo(x,y) 可以多次使用
+    ctx.beginPath()
+    ctx.moveTo(500, 100)
+    ctx.lineTo(600, 100)
+    ctx.lineTo(600, 400)
+    ctx.lineTo(500, 400)
+    ctx.lineTo(500, 100)
+    ctx.strokeStyle = 'blue'
+    ctx.lineWidth = 1
+    ctx.stroke()
+    ctx.closePath()
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>面向对象小球</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../../utils/utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let W = canvas.width = 800
+    let H = canvas.height = 600
+
+    // 面向对象 创建小球类
+    function Ball() {
+      this.x = C.rp([30, W - 30])
+      this.y = C.rp([30, H - 30])
+      this.r = C.rp([10, 30])
+      this.color = C.createColor16()
+      this.vx = C.rp([2, 5])
+      this.vy = C.rp([2, 5])
+    }
+    // 定义小球显示方法
+    Ball.prototype.show = function () {
+      this.run()
+      ctx.beginPath()
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2)
+      ctx.fillStyle = this.color
+      ctx.fill()
+    }
+    // 定义小球运动
+    Ball.prototype.run = function () {
+      if (this.x <= this.r || this.x + this.r >= W) {
+        this.vx = - this.vx
+      }
+      if (this.y <= this.r || this.y + this.r >= H) {
+        this.vy = - this.vy
+      }
+      this.x += this.vx
+      this.y += this.vy
+    }
+
+    var balls = []
+    for (var i = 0; i < 50; i++) {
+      var ball = new Ball()
+      balls.push(ball)
+    }
+
+    !(function move() {
+      window.requestAnimationFrame(move)
+      ctx.clearRect(0, 0, W, H)
+      balls.forEach(item => {
+        item.show()
+      })
+    })()
+  </script>
+</body>
+
+</html>

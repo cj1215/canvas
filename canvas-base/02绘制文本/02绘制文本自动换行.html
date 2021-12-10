@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>绘制文本自动换行</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../../utils/utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let W = canvas.width = 800
+    let H = canvas.height = 600
+
+    var drawX = 100
+    var drawY = 100
+    var lineHeight = 26
+    var lineMaxWidth = 100
+
+    ctx.beginPath()
+    ctx.moveTo(drawX, drawY)
+    ctx.lineTo(drawX + lineMaxWidth, drawY)
+    ctx.lineTo(drawX + lineMaxWidth, drawY + 100)
+    ctx.lineTo(drawX, drawY + 100)
+    ctx.lineTo(drawX, drawY)
+    ctx.strokeStyle = 'red'
+    ctx.stroke()
+    ctx.closePath()
+
+
+
+    ctx.beginPath()
+    ctx.moveTo(drawX, drawY)
+    ctx.lineTo(drawX + lineMaxWidth, drawY)
+    ctx.moveTo(drawX, drawY + lineHeight)
+    ctx.lineTo(drawX + lineMaxWidth, drawY + lineHeight)
+    ctx.lineWidth = 1
+    ctx.stroke()
+    ctx.closePath()
+
+    var text = '多行文本怎么显示'
+    ctx.font = "22px 微软雅黑"
+    // ctx.textAlign = 'center'
+    // ctx.textBaseline = 'middle'
+    textPrewrap(ctx, text, 100, 100, lineHeight, 100, 2)
+    /**
+     * ctx： 画布的上下文环境
+     * content： 需要绘制的文本内容
+     * drawX： 绘制文本的x坐标
+     * drawY： 绘制文本的y坐标
+     * lineHeight：文本之间的行高
+     * lineMaxWidth：每行文本的最大宽度
+     * lineNum：最多绘制的行数
+    */
+    // 文字自动换行
+    function textPrewrap(ctx, content, drawX, drawY, lineHeight, lineMaxWidth, lineNum) {
+      var drawTxt = ''; // 当前绘制的内容
+      var drawLine = 1; // 第几行开始绘制
+      var drawIndex = 0; // 当前绘制内容的索引
+
+      // 判断内容是否可以一行绘制完毕
+      if (ctx.measureText(content).width <= lineMaxWidth) {
+        ctx.fillText(content.substring(drawIndex), drawX, drawY);
+      } else {
+        // 文本超过一行时
+        for (var i = 0; i < content.length; i++) {
+          drawTxt += content[i];
+          if (ctx.measureText(drawTxt).width >= lineMaxWidth) {
+            if (drawLine >= lineNum) {
+              ctx.fillText(content.substring(drawIndex, i) + '..', drawX, drawY);
+              break;
+            } else {
+              ctx.fillText(content.substring(drawIndex, i + 1), drawX, drawY);
+              drawIndex = i + 1;
+              drawLine += 1;
+              drawY += lineHeight;
+              drawTxt = '';
+            }
+          } else {
+            // 内容绘制完毕，但是剩下的内容宽度不到lineMaxWidth
+            if (i === content.length - 1) {
+              ctx.fillText(content.substring(drawIndex), drawX, drawY);
+            }
+          }
+        }
+      }
+    }
+
+  </script>
+</body>
+
+</html>

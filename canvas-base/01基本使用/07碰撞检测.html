@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>碰撞检测</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../../utils/utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let W = canvas.width = 800
+    let H = canvas.height = 600
+
+    var x = 100
+    var y = 100
+    var r = 20
+    var vx = 5 // 水平速度
+    var vy = 3 // 垂直速度
+
+    function drawCircle(x, y, r) {
+      ctx.beginPath()
+      ctx.arc(x, y, r, 0, Math.PI * 2)
+      ctx.fillStyle = 'gold'
+      ctx.fill()
+    }
+
+    setInterval(() => {
+      ctx.clearRect(0, 0, W, H)
+      // 在小球碰到边缘时，速度取相反即可
+      if (x <= r || x + r >= W) {
+        vx = -vx
+      }
+      if (y <= r || y + r >= H) {
+        vy = -vy
+      }
+      x += vx
+      y += vy
+      drawCircle(x, y, r)
+    }, 10);
+  </script>
+</body>
+
+</html>

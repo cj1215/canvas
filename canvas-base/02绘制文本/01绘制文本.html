@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>绘制文本</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../../utils/utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let W = canvas.width = 800
+    let H = canvas.height = 600
+
+    ctx.beginPath()
+    ctx.moveTo(400, 50)
+    ctx.lineTo(400, 550)
+    ctx.moveTo(50, 300)
+    ctx.lineTo(750, 300)
+    ctx.stroke()
+    ctx.closePath()
+
+
+    var text = 'hello'
+    ctx.font = 'normal bold 22px 微软雅黑'
+    // 绘制实行文本
+    ctx.fillText(text, 50, 100)
+    // 绘制空心文本
+    ctx.strokeText(text, 50, 150)
+
+    // textAlign start end left right center
+    ctx.textAlign = 'start'
+    ctx.fillText(text, 400, 100)
+    ctx.textAlign = 'left'
+    ctx.fillText(text, 400, 130)
+    ctx.textAlign = 'end'
+    ctx.fillText(text, 400, 160)
+    ctx.textAlign = 'right'
+    ctx.fillText(text, 400, 190)
+    ctx.textAlign = 'center'
+    ctx.fillText(text, 400, 220)
+
+    // textBaseline top hanging middle alphabetic ideographic bottom
+    let baseline = ['top', 'hanging', 'middle', 'alphabetic', 'ideographic', 'bottom']
+    for (let i = 0; i < baseline.length; i++) {
+      ctx.textBaseline = baseline[i]
+      ctx.fillText(text, 100 + i * 100, 300)
+    }
+
+    // 预测量文本宽度
+    let text1 = 'hello world'
+    let o = ctx.measureText(text1)
+    console.log(o.width);
+
+
+    // 渐变色
+    var lineGradient = ctx.createLinearGradient(100, 500, 400, 500)
+    lineGradient.addColorStop(0, 'yellow')
+    lineGradient.addColorStop(1, 'red')
+    ctx.fillStyle = lineGradient
+    ctx.fillText(text1, 100, 500)
+
+  </script>
+</body>
+
+</html>
