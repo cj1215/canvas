@@ -658,31 +658,96 @@ canvas画布宽度为w，高度为h。小球圆心坐标(x, y)，半径为r
 r >= Math.sqrt((x -a)² + (y-b)²) // true的话，说明鼠标在圆上或者圆内
 ```
 
+
+
 # 像素操作
 
-1
+可以通过ImageData对象操纵像素数据，直接读取或将数据数组写入该对象中。
 
-1
+## ImageData 对象
 
-1
+[`ImageData`](https://developer.mozilla.org/zh-CN/docs/Web/API/ImageData)对象中存储着canvas对象真实的像素数据，它包含以下几个只读属性：
 
-1
+- `width`
 
-1
+  图片宽度，单位是像素
 
-1
+- `height`
 
-1
+  图片高度，单位是像素
 
-1
+- `data`
 
-1
+  [`Uint8ClampedArray`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray)类型的一维数组，包含着RGBA格式的整型数据，范围在0至255之间（包括255）。
 
-1
+data属性返回一个 [`Uint8ClampedArray`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray)，它可以被使用作为查看初始像素数据。每个像素用4个1bytes值(按照红，绿，蓝和透明值的顺序; 这就是"RGBA"格式) 来代表。每个颜色值部份用0至255来代表。每个部份被分配到一个在数组内连续的索引，左上角像素的红色部份在数组的索引0位置。像素从左到右被处理，然后往下，遍历整个数组。
 
-1
+[`Uint8ClampedArray`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray) 包含高度 × 宽度 × 4 bytes数据，索引值从0到(`高度`×宽度×4)-1
 
-1
+根据行、列读取某像素点的R/G/B/A值的公式：
+
+```javascript
+// 获取50行，第200列的像素，0是红色部分，1是绿色部分，2是蓝色部分，3是透明值
+imageData.data[((50 * (imageData.width * 4)) + (200 * 4)) + 0/1/2/3]
+```
+
+## 创建一个`ImageData对象`
+
+创建了一个新的具体特定尺寸的ImageData`对象`，所有像素被预设为透明黑。
+
+```javascript
+var myImageData = ctx.createImageData(width, height)
+```
+
+创建一个被anotherImageData`对象`指定的相同像素的ImageData`对象`。这个新的`对象`像素全部被预设为透明黑。这个并非复制了图片数据。
+
+```javascript
+var myImageData = ctx.createImageData(anotherImageData)
+```
+
+## 得到场景像素数据
+
+为了获得一个包含画布场景像素数据的ImageData对像，你可以用getImageData()方法：
+
+```javascript
+var myImageData = ctx.getImageData(left, top, width, height)
+```
+
+这个方法会返回一个ImageData`对象`，它代表了画布区域的`对象`数据，此画布的四个角落分别表示为(left, top), (left + width, top), (left, top + height), 以及(left + width, top + height)四个点。这些坐标点被设定为画布坐标空间元素。
+
+注：任何在画布以外的元素都会被返回成一个透明黑的ImageData对像。
+
+## 在场景中写入像素数据
+
+你可以用putImageData()方法去对场景进行像素数据的写入。
+
+```javascript
+ctx.putImageData(myImageData, dx, dy)
+```
+
+dx和dy参数表示你希望在场景内左上角绘制的像素数据所得到的设备坐标
+
+![](images\像素与坐标关系.png)
+
+
+
+## 缩放和反锯齿
+
+
+
+## 保存图片
+
+- `canvas.toDataURL('image/png')`
+
+  默认设定。创建一个PNG图片。
+
+- `canvas.toDataURL('image/jpeg', quality)`
+
+  最好品质，0基本不被辨析但有比较小的文件大小。
+
+- `canvas.toBlob(callback, type, encoderOptions)`
+
+  创建一个在画布中的代表图片的Blob对像。
 
 1
 

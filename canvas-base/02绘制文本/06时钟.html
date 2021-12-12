@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>时钟</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    .clock {
+      margin: 20px auto;
+      width: 400px;
+      height: 400px;
+      background: #ddd;
+      border-radius: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="clock">
+    <canvas id="canvas"></canvas>
+  </div>
+  <script src="../../utils/utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let w = canvas.width = 400
+    let h = canvas.height = 400
+    const r = 180 // 时钟半径
+    const r_hour = 60 // 时针长度
+    const w_hour = 10 // 时针宽度
+    const r_minute = 120 // 分针长度
+    const w_minute = 5// 分针宽度
+    const r_second = 140 // 秒针长度
+    const w_second = 2 // 秒针宽度
+    const r_text = 140 // 文字半径
+    const r_square = 165 // 刻度
+    const r_circle = 10 // 中间小圆点
+    const deg = Math.PI * 2 // 一圈的弧度
+
+    // 画直线
+    function drawLine(x1, y1, x2, y2, color, width) {
+      ctx.beginPath()
+      ctx.moveTo(x1, y1)
+      ctx.lineTo(x2, y2)
+      ctx.lineCap = 'round'
+      ctx.lineWidth = width
+      ctx.strokeStyle = color || '#000'
+      ctx.stroke()
+      ctx.closePath()
+    }
+    // 画文字
+    function drawText(text, x, y) {
+      ctx.font = 'bold 26px 微软雅黑'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(text, x, y)
+    }
+    // 画圆
+    function drawCircle(x, y, r, color) {
+      ctx.beginPath()
+      ctx.arc(x, y, r, 0, Math.PI * 2)
+      ctx.fillStyle = color || '#000'
+      ctx.fill()
+    }
+    // 创建小球类
+    function Ball(text) {
+      this.x = C.rp([60, 750])
+      this.y = C.rp([60, 500])
+      this.r = C.rp([10, 40])
+      this.color = C.createColor()
+      this.vx = C.rp([1, 2])
+      this.vy = C.rp([1, 2])
+      this.text = text
+    }
+
+    function clock() {
+      ctx.save()
+      ctx.translate(200, 200)
+      drawCircle(0, 0, r, '#fff')
+      // 时针、分针、秒针
+      // 获取当前时间
+      var date = new Date()
+      var hour = date.getHours() * (deg / 12) - deg / 4
+      var minute = date.getMinutes() * (deg / 60) - deg / 4
+      var second = date.getSeconds() * (deg / 60) - deg / 4
+      // drawLine(0, 0, r_hour, 0, '#000', w_hour)
+      // drawLine(0, 0, r_minute, 0, '#000', w_minute)
+      // drawLine(0, 0, r_second, 0, 'red', w_second)
+      drawLine(0, 0, r_hour * Math.cos(hour), r_hour * Math.sin(hour), '#000', w_hour)
+      drawLine(0, 0, r_minute * Math.cos(minute), r_minute * Math.sin(minute), '#000', w_minute)
+      drawLine(0, 0, r_second * Math.cos(second), r_second * Math.sin(second), 'red', w_second)
+
+      // 中心点
+      drawCircle(0, 0, r_circle, '#000')
+
+      // 数字
+      for (let i = 1; i <= 12; i++) {
+        let θ = deg / 12 * i - Math.PI / 2
+        let x = r_text * Math.cos(θ)
+        let y = r_text * Math.sin(θ)
+        drawText(i, x, y)
+      }
+
+      // 画刻度
+      for (let i = 1; i <= 60; i++) {
+        let θ = deg / 60 * i - Math.PI / 2
+        let x1 = r * Math.cos(θ)
+        let y1 = r * Math.sin(θ)
+        if (i % 5 === 0) {
+          let x2 = r_square * Math.cos(θ)
+          let y2 = r_square * Math.sin(θ)
+          drawLine(x1, y1, x2, y2, '#999', 3)
+        } else {
+          let x2 = (r_square + 4) * Math.cos(θ)
+          let y2 = (r_square + 4) * Math.sin(θ)
+          drawLine(x1, y1, x2, y2, '#aaa', 2)
+        }
+      }
+      ctx.restore()
+    }
+
+    !(function move() {
+      clock()
+      setInterval(() => {
+        ctx.clearRect(0, 0, w, h)
+        clock()
+      }, 1000)
+    })()
+  </script>
+</body>
+
+</html>

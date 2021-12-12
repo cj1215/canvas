@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>线性小球</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../../utils/utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let W = canvas.width = 800
+    let H = canvas.height = 600
+
+    // 画小球
+    function drawCircle(x, y, r, color) {
+      ctx.beginPath()
+      ctx.arc(x, y, r, 0, Math.PI * 2)
+      ctx.fillStyle = color || '#000'
+      ctx.fill()
+    }
+
+    // 创建小球类
+    function Ball(x, y, text) {
+      this.x = x
+      this.y = y
+      this.r = 40
+      this.color = C.createColor()
+      this.vx = C.rp([1, 2])
+      this.vy = C.rp([1, 2])
+      this.text = text
+    }
+    Ball.prototype.show = function () {
+      this.r--
+      drawCircle(this.x, this.y, this.r, this.color)
+    }
+
+    var ballArr = []
+    canvas.onmousemove = function (e) {
+      let { pageX, pageY, target } = e
+      let { left, top } = target.getBoundingClientRect()
+      let x = pageX - left
+      let y = pageY - top
+      var ball = new Ball(x, y)
+      ball.show()
+      ballArr.push(ball)
+    }
+    setInterval(() => {
+      ctx.clearRect(0, 0, W, H)
+      ballArr.forEach((item, i) => {
+        if (item.r <= 0) {
+          ballArr.splice(i, 1)
+        } else {
+          item.show()
+        }
+      })
+    }, 10)
+
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>时钟</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    .clock {
+      margin: 20px auto;
+      width: 400px;
+      height: 400px;
+      background: #ddd;
+      border-radius: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="clock">
+    <canvas id="canvas"></canvas>
+  </div>
+  <script src="../../utils/utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let w = canvas.width = 400
+    let h = canvas.height = 400
+    const r = 180 // 时钟半径
+    const r_hour = 60 // 时针长度
+    const w_hour = 10 // 时针宽度
+    const r_minute = 120 // 分针长度
+    const w_minute = 5// 分针宽度
+    const r_second = 140 // 秒针长度
+    const w_second = 2 // 秒针宽度
+    const r_text = 140 // 文字半径
+    const r_square = 165 // 刻度
+    const r_circle = 10 // 中间小圆点
+    const c = Math.PI * 2 // 一圈的弧度
+
+    // 画直线
+    function drawLine(x1, y1, x2, y2, color, width) {
+      ctx.beginPath()
+      ctx.moveTo(x1, y1)
+      ctx.lineTo(x2, y2)
+      ctx.lineCap = 'round'
+      ctx.lineWidth = width
+      ctx.strokeStyle = color || '#000'
+      ctx.stroke()
+      ctx.closePath()
+    }
+    // 画文字
+    function drawText(text, x, y, color) {
+      ctx.font = 'bold 26px 微软雅黑'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillStyle = color || '#000'
+      ctx.fillText(text, x, y)
+    }
+    // 画圆
+    function drawCircle(x, y, r, color) {
+      ctx.beginPath()
+      ctx.arc(x, y, r, 0, Math.PI * 2)
+      ctx.fillStyle = color || '#000'
+      ctx.fill()
+    }
+
+    function clock() {
+      ctx.save()
+      ctx.translate(200, 200)
+      ctx.rotate(-c / 4)
+      drawCircle(0, 0, r, '#fff')
+      // 画刻度，一圈有60个刻度
+      for (let i = 1; i <= 60; i++) {
+        let angle = c / 60 * i
+        let x1 = r * Math.cos(angle)
+        let y1 = r * Math.sin(angle)
+        if (i % 5 === 0) {
+          let x2 = r_square * Math.cos(angle)
+          let y2 = r_square * Math.sin(angle)
+          drawLine(x1, y1, x2, y2, '#999', 3)
+        } else {
+          let x2 = (r_square + 4) * Math.cos(angle)
+          let y2 = (r_square + 4) * Math.sin(angle)
+          drawLine(x1, y1, x2, y2, '#aaa', 2)
+        }
+      }
+      // 画文字
+      for (let i = 1; i <= 12; i++) {
+        let angle = c / 12 * i - c / 4
+        let x = r_text * Math.cos(angle)
+        let y = r_text * Math.sin(angle)
+        ctx.save()
+        ctx.rotate(c / 4)
+        drawText(i, x, y)
+        ctx.restore()
+      }
+      // 画指针
+      let { rh, rm, rs } = getRadian()
+      drawLine(0, 0, Math.cos(rh) * r_hour, Math.sin(rh) * r_hour, '#000', w_hour)
+      drawLine(0, 0, Math.cos(rm) * r_minute, Math.sin(rm) * r_minute, '#000', w_minute)
+      drawLine(0, 0, Math.cos(rs) * r_second, Math.sin(rs) * r_second, 'red', w_second)
+      drawCircle(0, 0, r_circle)
+
+      ctx.restore()
+    }
+    // 计算指针在圆周中的弧度
+    function getRadian() {
+      const date = new Date()
+      let h = date.getHours()
+      h = h > 12 ? h - 12 : h
+      let m = date.getMinutes()
+      let s = date.getSeconds()
+      const rh = c * (h / 12 + m / 60 / 12 + s / 60 / 60 / 12)
+      const rm = c * (m / 60 + s / 60 / 60)
+      const rs = c * (s / 60)
+      return { rh, rm, rs }
+    }
+
+    !(function () {
+      clock()
+      setInterval(() => {
+        ctx.clearRect(0, 0, w, h)
+        clock()
+      }, 1000)
+    })()
+  </script>
+</body>
+
+</html>

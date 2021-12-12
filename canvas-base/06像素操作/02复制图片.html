@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>复制图片</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../../utils/utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let w = canvas.width = 800
+    let h = canvas.height = 600
+    // ctx.fillStyle = 'red'
+    // ctx.fillRect(0, 0, 100, 100)
+    // let imageData = ctx.getImageData(0, 0, 10, 10)
+    // console.log(imageData);
+    let img = new Image()
+    img.src = '../assets/keji.png'
+    img.onload = function () {
+      ctx.drawImage(img, 0, 0, 300, 200)
+      let copy = ctx.getImageData(160, 10, 100, 100)
+      ctx.putImageData(copy, 100, 250)
+    }
+  </script>
+</body>
+
+</html>
