@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>彩色心</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../../utils/utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let w = canvas.width = 800
+    let h = canvas.height = 600
+
+    // 画直线
+    function drawLine(x1, y1, x2, y2, color, width) {
+      ctx.beginPath()
+      ctx.moveTo(x1, y1)
+      ctx.lineTo(x2, y2)
+      ctx.lineCap = 'round'
+      ctx.lineWidth = width
+      ctx.strokeStyle = color || '#000'
+      ctx.stroke()
+      ctx.closePath()
+    }
+    // 画文字
+    function drawText(text, x, y) {
+      ctx.font = 'bold 300px 微软雅黑'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(text, x, y)
+    }
+    // 填充文字
+    function drawFillText(text, x, y, color) {
+      ctx.font = '12px 微软雅黑'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillStyle = color
+      ctx.fillText(text, x, y)
+    }
+    // 画圆
+    function drawCircle(x, y, r, color) {
+      ctx.beginPath()
+      ctx.arc(x, y, r, 0, Math.PI * 2)
+      ctx.fillStyle = color || '#000'
+      ctx.fill()
+    }
+
+    // 运动次数
+    const times = 100
+    function Ball(xEnd, yEnd) {
+      this.xStart = C.rp([0, w]) // 初始x轴位置
+      this.yStart = C.rp([0, h]) // 初始y轴位置
+      this.xEnd = xEnd // 结束时x轴位置
+      this.yEnd = yEnd // 结束时y轴位置
+      this.xSpeed = (this.xEnd - this.xStart) / times // x轴速度
+      this.ySpeed = (this.yEnd - this.yStart) / times // y轴速度
+      // 小球运动的中心点
+      this.x = this.xStart
+      this.y = this.yStart
+      this.r = 3
+
+      this.text = '❤'
+      this.color = `rgb(255, ${C.rp([0, 255])},${C.rp([0, 255])})`
+    }
+    Ball.prototype.show = function () {
+      this.x += this.xSpeed
+      this.y += this.ySpeed
+      drawFillText(this.text, this.x, this.y, this.color)
+    }
+
+    // ✿ ☠ ❤
+    drawText('❤', w / 2, h / 2)
+    // 获取整个画布的像素点
+    var copy = ctx.getImageData(0, 0, w, h)
+    ctx.clearRect(0, 0, w, h)
+    // 筛选有效像素点
+    let leap = 10
+    const ballArr = []
+    for (let y = 0; y < h; y += leap) {
+      for (let x = 0; x < w; x += leap) {
+        let index = x + y * w
+        let a = copy.data[index * 4 + 3]
+        if (a > 128) {
+          // 调用小球类，画圆
+          const ball = new Ball(x, y)
+          ballArr.push(ball)
+        }
+      }
+    }
+
+    let count = 1
+    const timer = setInterval(() => {
+      ctx.clearRect(0, 0, w, h)
+      for (let i = 0; i < ballArr.length; i++) {
+        ballArr[i].show()
+      }
+      if (count++ == times) {
+        clearInterval(timer)
+      }
+    }, 10);
+
+
+  </script>
+</body>
+
+</html>

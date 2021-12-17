@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>垂直全景移动</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    canvas {
+      /* margin: 0 atuo; */
+      /* box-shadow: 0 0 40px #333; */
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas" width="320" height="568"></canvas>
+  <script>
+    draw()
+    function draw() {
+      var canvas = document.getElementById('canvas')
+      if (canvas.getContext) {
+        var ctx = canvas.getContext('2d')
+        var y = 0
+        function bgMove() {
+          ctx.save()
+          ctx.clearRect(0, 0, canvas.width, canvas.height)
+          ctx.translate(0, y)
+          ctx.drawImage(bgImage, 0, 0)
+          ctx.drawImage(bgImage, 0, canvas.height * -1)
+          ctx.restore()
+          y++
+          if (y >= canvas.height) {
+            y = 0
+          }
+          window.requestAnimationFrame(bgMove)
+        }
+        var bgImage = new Image()
+        bgImage.onload = function () {
+          bgMove()
+        }
+        bgImage.src = '../assets/image/hit-plane.jpg'
+      }
+    }
+  </script>
+</body>
+
+</html>

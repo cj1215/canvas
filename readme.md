@@ -14,9 +14,9 @@
 
   - <canvas style="width:600;height:400" ></canvas>	
 
-    通过css设置，相当于对画布进行了拉伸或缩放，而画布的右下角坐标仍是(300,150)
+    通过css设置，相当于对画布进行了拉伸或缩放，而画布的右下角坐标仍是(300,150)												
 
-
+canvas本质上就是利用代码在浏览器的页面上进行画画
 
 ## 渲染上下文
 
@@ -27,6 +27,26 @@ var canvas = document.getElementById('canvas')
 var ctx = canvas.getContext('2d')  // 获得2D渲染上下文
 var ctx = canvas.getContext('WebGL') // 获得3D上下文
 ```
+
+
+
+## canvas的像素化
+
+当我们使用canvas绘制了一个图形，一旦绘制成功了，canvas就像素化了它们。canvas没有能力从画布上再次得到这个图形，也就是说我们没有能力去修改已经在画布上的内容。这个就是canvas比较轻量的原因，Flash重的原因之一就是它可以通过对应的api得到已经上”画布“的内容后再次绘制。
+
+如果我们想要这个canvas图形移动，必须按照**清屏 - 更新 - 渲染**的逻辑进行编程，就是重新再画一次。
+
+## canvas的动画思想
+
+canvas的动画思想就是**清屏 - 更新 - 渲染**
+
+实际上动画的生成就是相关静态画面连续播放了，这个就是动画的过程。我们把每一次绘制的静态画面叫做“一帧”，时间的间隔就表示的是帧的间隔。
+
+## 面向对象思维实现canvas动画
+
+因为canvas不能得到已经上屏的对象，所以我们要维持对象的状态，在canvas动画中，我们都使用面向对象来进行编程，因为我们可以使用面向对象的方式来维持canvas需要的属性和状态。
+
+
 
 # 绘制形状
 
@@ -59,55 +79,67 @@ var ctx = canvas.getContext('WebGL') // 获得3D上下文
 
 ### 移动笔触
 
-`moveTo(x, y)`
+- `moveTo(x, y)`
 
-将笔触移动到指定的坐标x以及y上。
+  将笔触移动到指定的坐标x以及y上。
 
 ### 线
 
-`lineTo(x, y)`
+- `lineTo(x, y)`
 
-​	绘制一条从当前位置到指定x以及y位置的直线。
+  绘制一条从当前位置到指定x以及y位置的直线。
 
 ### 矩形
 
-`fillRect(x, y, width, height)`  
+- `fillRect(x, y, width, height)`  
 
-​	绘制一个填充矩形
+  绘制一个填充矩形
 
-`strokeRect(x, y, width, height)` 
+- `strokeRect(x, y, width, height)` 
 
-​	绘制一个矩形的边框
+  绘制一个矩形的边框
 
-`clearRect(x, y, width, height)` 
+- `clearRect(x, y, width, height)` 
 
-​	清除指定矩形区域，让清除部分完全透明
+  清除指定矩形区域，让清除部分完全透明
 
-`rect(x, y, width, height)  `
+- `rect(x, y, width, height)  `
 
-​	绘制一个左上角坐标为（x,y），宽高为width以及height的矩形
+  绘制一个左上角坐标为（x,y），宽高为width以及height的矩形
+
+  如果需要填充和描边，先填充再描边。
 
 注：x与y指定了在canvas画布上所绘制的矩形的左上角（相对于原点）的坐标。width和height设置矩形的尺寸。
 
 ### 圆弧
 
-`arc(x, y, radius, startAngle, endAngle, anticlockwise)`
+- `arc(x, y, radius, startAngle, endAngle, anticlockwise)`
 
-​	画一个以（x,y）为圆心的以radius为半径的圆弧（圆），从startAngle开始到endAngle结束，按照anticlockwise给定的方向（默认为false顺时针）来生成。 
+  画一个以（x,y）为圆心的以radius为半径的圆弧（圆），从startAngle开始到endAngle结束，按照anticlockwise给定的方向（默认为false顺时针）来生成。 
 
-`arcTo(x1, y1, x2, y2, radius)`
+  `startAngle, endAngle`都是以弧度为单位的，`Math.PI/180 * 度数`可以将度数转化为弧度
 
-​	根据给定的控制点和半径画一段圆弧，再以直线连接两个控制点。
+- `arcTo(x1, y1, x2, y2, radius)`
+
+  根据给定的控制点和半径画一段圆弧，再以直线连接两个控制点。
+
+  ```javascript
+  ctx.beginPath()
+  ctx.arc(0, 0, 10, 0, Math.PI * 2, true) // 逆时针方向画一个圆
+  ctx.closePath()
+  ```
+
+  
 
 ### 二次贝塞尔曲线及三次贝塞尔曲线
 
-`quadraticCurveTo(cp1x, cp1y, x, y)`
+- `quadraticCurveTo(cp1x, cp1y, x, y)`
 
-绘制二次贝塞尔曲线，`cp1x,cp1y`为一个控制点，`x,y为`结束点。
+  绘制二次贝塞尔曲线，`cp1x,cp1y`为一个控制点，`x,y为`结束点。
 
-`bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y)`
+- `bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y)`
 
-绘制三次贝塞尔曲线，`cp1x,cp1y`为控制点一，`cp2x,cp2y`为控制点二，`x,y`为结束点。
+  绘制三次贝塞尔曲线，`cp1x,cp1y`为控制点一，`cp2x,cp2y`为控制点二，`x,y`为结束点。
 
 
 
@@ -127,9 +159,9 @@ var ctx = canvas.getContext('WebGL') // 获得3D上下文
 
 ## 透明度 Transparency
 
-`globalAlpha = transparencyValue`
+- `globalAlpha = transparencyValue`
 
-​	这个属性影响到 canvas 里所有图形的透明度，有效的值范围是 0.0 （完全透	明）到 1.0（完全不透明），默认是 1.0。
+  这个属性影响到 canvas 里所有图形的透明度，有效的值范围是 0.0 （完全透明到 1.0（完全不透明），默认是 1.0。
 
 `globalAlpha` 属性在需要绘制大量拥有相同透明度的图形时候相当高效。不过，我认为下面的方法可操作性更强一点。
 
@@ -138,6 +170,8 @@ var ctx = canvas.getContext('WebGL') // 获得3D上下文
 ctx.strokeStyle = "rgba(255,0,0,0.5)";
 ctx.fillStyle = "rgba(255,0,0,0.5)";
 ```
+
+
 
 ## 线型 Line styles
 
@@ -183,6 +217,8 @@ ctx.fillStyle = "rgba(255,0,0,0.5)";
   设置虚线样式的起始偏移量。
 
   `value` 偏移量是float精度的数字。 初始值为 `0.0。`
+
+
 
 ## 渐变 Gradients
 
@@ -247,15 +283,15 @@ function draw() {
 
 - `shadowOffsetY = float`
 
-  shadowOffsetX 和 `shadowOffsetY `用来设定阴影在 X 和 Y 轴的延伸距离，它们是不受变换矩阵所影响的。负值表示阴影会往上或左延伸，正值则表示会往下或右延伸，它们默认都为 `0`。
+  `shadowOffsetX` 和 `shadowOffsetY `用来设定阴影在 X 和 Y 轴的延伸距离，它们是不受变换矩阵所影响的。负值表示阴影会往上或左延伸，正值则表示会往下或右延伸，它们默认都为 `0`。
 
 - `shadowBlur = float`
 
-  shadowBlur 用于设定阴影的模糊程度，其数值并不跟像素数量挂钩，也不受变换矩阵的影响，默认为 `0`。
+  `shadowBlur` 用于设定阴影的模糊程度，其数值并不跟像素数量挂钩，也不受变换矩阵的影响，默认为 `0`。
 
 - `shadowColor = color`
 
-  shadowColor 是标准的 CSS 颜色值，用于设定阴影颜色效果，默认是全透明的黑色。
+  `shadowColor` 是标准的 CSS 颜色值，用于设定阴影颜色效果，默认是全透明的黑色。
 
 ## Canvas 填充规则
 
@@ -430,11 +466,43 @@ Canvas状态存储在栈中，每当`save()`方法被调用后，当前的状态
 
 ## 变形 Transforms
 
+可以使用transform进行属性translate、rotate、scale的综合写法
+
 - `transform(a, b, c, d, e, f)`
 
-  
+  - a (m11)
 
-  
+    水平方向的缩放
+
+  - b(m12)
+
+    竖直方向的倾斜偏移
+
+  - c(m21)
+
+    水平方向的倾斜偏移
+
+  - d(m22)
+
+    竖直方向的缩放
+
+  - e(dx)
+
+    水平方向的移动
+
+  - f(dy)
+
+    竖直方向的移动
+
+- `setTransform(a, b, c, d, e, f)`
+
+  这个方法会将当前的变形矩阵重置为单位矩阵，然后用相同的参数调用 `transform `方法。如果任意一个参数是无限大，那么变形矩阵也必须被标记为无限大，否则会抛出异常。从根本上来说，该方法是取消了当前变形,然后设置为指定的变形,一步完成。
+
+- `resetTransform()`
+
+  重置当前变形为单位矩阵，它和调用以下语句是一样的：`ctx.setTransform(1, 0, 0, 1, 0, 0);`
+
+
 
 # 合成与裁剪
 
@@ -486,7 +554,34 @@ Canvas状态存储在栈中，每当`save()`方法被调用后，当前的状态
 
 # 基本动画
 
+## 动画的基本步骤
 
+你可以通过以下的步骤来画出一帧:
+
+1. **清空 canvas**
+   除非接下来要画的内容会完全充满 canvas （例如背景图），否则你需要清空所有。最简单的做法就是用 `clearRect` 方法。
+2. **保存 canvas 状态**
+   如果你要改变一些会改变 canvas 状态的设置（样式，变形之类的），又要在每画一帧之时都是原始状态的话，你需要先保存一下。
+3. **绘制动画图形（animated shapes）**
+   这一步才是重绘动画帧。
+4. **恢复 canvas 状态**
+   如果已经保存了 canvas 的状态，可以先恢复它，然后重绘下一帧。
+
+## 操控动画
+
+为了实现动画，我们需要一些可以定时执行重绘的方法。
+
+- `setInterval(function, delay)` 
+
+  当设定好间隔时间后，function会定期执行。
+
+- `setTimeout(function, delay)`
+
+  在设定好的时间之后执行函数
+
+- `requestAnimationFrame(callback)`
+
+  告诉浏览器你希望执行一个动画，并在重绘之前，请求浏览器执行一个特定的函数来更新动画。
 
 
 
@@ -608,15 +703,27 @@ y轴的加速度 = a * Math.sin(30)
 
 ### 边界检测
 
-canvas画布宽度为w，高度为h。小球圆心坐标(x, y)，半径为r
+canvas画布宽度为w，高度为h。
 
-- 小球边界检测
+- **小球边界检测**
+
+  小球圆心坐标(x, y)，半径为r
+
   - 左边界：`x <= r`
   - 右边界：`x + r >= w`
   - 上边界：`y <= r`
   - 下边界：`y + r >= h`
 
+- **矩形边界检测**
 
+  矩形左上角坐标(x, y)，宽width，高height
+
+  - 左边界：``
+  - 右边界：``
+  - 上边界：``
+  - 下边界：``
+
+  
 
 
 

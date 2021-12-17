@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      height: 100%;
+    }
+
+    #canvas {
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, .5);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../../utils/utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    let w = canvas.width = document.documentElement.clientWidth
+    let h = canvas.height = document.documentElement.clientHeight
+
+    function Ball() {
+      this.x = C.rp([10, w - 10])
+      this.y = C.rp([10, h - 10])
+      this.r = 10
+      this.color = 'grey'
+      this.vx = C.rp([0.1, 3])
+      this.vy = C.rp([0.1, 3])
+    }
+    Ball.prototype.render = function () {
+      ctx.beginPath()
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2)
+      ctx.globalAlpha = 1
+      ctx.fillStyle = this.color
+      ctx.fill()
+      // 连线的逻辑 画线只画比自己索引大的一方就可以了，否则就是每一次两根线 A-B和B-A
+      for (let i = this.index; i < ballArr.length; i++) {
+        const dx = ballArr[i].x - this.x
+        const dy = ballArr[i].y - this.y
+        if (Math.abs(dx) < 150 && Math.abs(dy) < 150) {
+          // 当两个球的x轴和y轴距离小于150时
+          ctx.beginPath()
+          ctx.moveTo(this.x, this.y)
+          ctx.lineTo(ballArr[i].x, ballArr[i].y)
+          ctx.strokeStyle = '#000'
+          // 线的透明度，根据当前的两个已经连接的小球的距离进行线的透明度设置
+          ctx.globalAlpha = 10 / Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2))
+          ctx.stroke()
+          ctx.closePath()
+        }
+      }
+    }
+    Ball.prototype.update = function () {
+      this.x += this.vx
+      this.y += this.vy
+      if (this.x <= this.r || this.x + this.r >= w) {
+        this.vx = -this.vx
+      }
+      if (this.y <= this.r || this.y + this.r >= h) {
+        this.vy = -this.vy
+      }
+    }
+    let ballArr = []
+
+    for (let i = 0; i < 20; i++) {
+      let ball = new Ball()
+      ball.index = i
+      ballArr.push(ball)
+    }
+    !(function move() {
+      requestAnimationFrame(move)
+      ctx.clearRect(0, 0, w, h)
+      for (let i = 0; i < ballArr.length; i++) {
+        ballArr[i].render()
+        ballArr[i].update()
+      }
+    })()
+  </script>
+</body>
+
+</html>

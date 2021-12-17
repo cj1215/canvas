@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>飞机大战</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    body,
+    html {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #stage {
+      margin: auto;
+    }
+
+    canvas {
+      display: block;
+      margin: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- <div id="stage"> -->
+  <canvas id="canvas"></canvas>
+  <!-- </div> -->
+  <script>
+    var viewWidth = window.innerWidth || document.documentElement.clientWidth;
+    var viewHeight = window.innerHeight || document.documentElement.clientHeight;
+    const canvas = document.querySelector('#canvas')
+    const context = canvas.getContext('2d')
+    const w = canvas.width = viewWidth
+    const h = canvas.height = viewHeight
+    // 游戏的状态
+    const START = 0 // 开始
+    const STARTING = 1 // 开始时
+    const RUNNING = 2 // 运行时
+    const PAUSE = 3 // 暂停时
+    const END = 4 // 结束时
+    let state = START
+
+
+    const bg = new Image()
+    bg.src = 'images/background.png'
+    // logo图片
+    const copyright = new Image()
+    copyright.src = 'images/logo.png'
+    // 开始游戏图片
+    const playBtn = new Image()
+    playBtn.src = 'images/play.png'
+
+
+    // 初始化四张飞机大战的加载图片
+    const loading_frame = []
+    loading_frame[0] = new Image()
+    loading_frame[0].src = 'images/game_loading1.png'
+    loading_frame[1] = new Image()
+    loading_frame[1].src = 'images/game_loading2.png'
+    loading_frame[2] = new Image()
+    loading_frame[2].src = 'images/game_loading3.png'
+    loading_frame[3] = new Image()
+    loading_frame[3].src = 'images/game_loading4.png'
+    // 初始化我方飞机图片
+    const hero_frame = { live: [], death: [] }
+    hero_frame.live[0] = new Image()
+    hero_frame.live[0].src = 'images/hero1.png'
+    hero_frame.live[1] = new Image()
+    hero_frame.live[1].src = 'images/hero2.png'
+    hero_frame.death[0] = new Image()
+    hero_frame.death[0].src = 'images/hero_blowup_n1.png'
+    hero_frame.death[1] = new Image()
+    hero_frame.death[1].src = 'images/hero_blowup_n2.png'
+    hero_frame.death[2] = new Image()
+    hero_frame.death[2].src = 'images/hero_blowup_n3.png'
+    hero_frame.death[3] = new Image()
+    hero_frame.death[3].src = 'images/hero_blowup_n4.png'
+    // 初始化子弹图片
+    const bulletImg = new Image()
+    bulletImg.src = 'images/bullet1.png'
+
+    // 背景图片类
+    class Sky {
+      constructor(config) {
+        // 背景图片
+        this.bg = config.bg
+        // 背景宽度
+        this.width = config.width
+        // 背景高度
+        this.height = config.height
+        // 背景x轴坐标
+        this.x = 0
+        // 背景y轴坐标
+        this.y = 0
+        // 背景运动速度
+        this.speed = config.speed
+        // 最后更新时间
+        this.lastTime = new Date().getTime()
+      }
+      // 判断背景是否需要移动，当前时间 - 速度时间 > 最后更新时间，那么就需要移动，否则不移动
+      judge() {
+        let currentTime = new Date().getTime()
+        if (currentTime - this.speed > this.lastTime) {
+          this.y++
+          this.lastTime = currentTime
+        }
+        if (this.y >= this.height) {
+          this.y = 0
+        }
+      }
+      // 绘图方法
+      paint(context) {
+        context.drawImage(this.bg, this.x, this.y, this.width, this.height)
+        context.drawImage(this.bg, this.x, -(this.height - this.y), this.width, this.height)
+      }
+    }
+    // 创建一个Sky的实例
+    const SKY = {
+      bg: bg,
+      width: w,
+      height: h,
+      speed: 10
+    }
+    const sky = new Sky(SKY)
+
+
+    // 加载loading类
+    class Loading {
+      constructor(config) {
+        this.x = config.x
+        this.y = config.y
+        this.width = config.width
+        this.height = config.height
+        this.frame = config.frame
+        this.frameIndex = 0
+        this.speed = config.speed
+        this.lastTime = new Date().getTime()
+      }
+      // 判断是否需要移动
+      judge() {
+        let currentTime = new Date().getTime()
+        if (currentTime - this.lastTime > this.speed) {
+          this.frameIndex++
+          if (this.frameIndex === this.frame.length - 1) {
+            state = RUNNING
+          }
+          this.lastTime = currentTime
+        }
+      }
+      // 绘图方法
+      paint(context) {
+        context.drawImage(this.frame[this.frameIndex], this.x, this.y)
+      }
+    }
+
+    // 创建一个Loading的实例
+    const LOADING = {
+      x: (w - 186) / 2,
+      y: (h - 38) / 2,
+      width: 186,
+      height: 38,
+      frame: loading_frame,
+      speed: 1000
+    }
+    const loading = new Loading(LOADING)
+
+    // 子弹类
+    class Bullet {
+      constructor(config, x, y) {
+        this.x = x
+        this.y = y
+        this.width = config.width
+        this.height = config.height
+        this.img = config.image
+        this.speed = config.speed
+        this.lastTime = new Date().getTime()
+      }
+      paint(context) {
+        context.drawImage(this.img, this.x, this.y)
+      }
+      move() {
+        let currentTime = new Date().getTime()
+        if (currentTime - this.lastTime > this.speed) {
+          this.y -= 5
+          this.lastTime = currentTime
+        }
+      }
+    }
+    const BULLET = {
+      width: bulletImg.width,
+      height: bulletImg.height,
+      image: bulletImg,
+      speed: 10
+    }
+    // 我方飞机类
+    class Hero {
+      constructor(config) {
+        this.x = config.x
+        this.y = config.y
+        this.width = config.width
+        this.height = config.height
+        this.live = true // true活着 false死亡
+        this.frame = config.frame
+        this.frameLiveIndex = 0
+        this.frameDeathIndex = 0
+        this.img = null // 当前展示的图片
+        this.speed = config.speed
+        this.lastTime = new Date().getTime()
+        this.lastShootTime = new Date().getTime() // 最后一次的射击时间
+        this.shootInterval = config.shootInterval // 发射子弹的间隔时间
+        this.bulletList = [] // 子弹夹数组
+      }
+      judge() {
+        let currentTime = new Date().getTime()
+        if (this.live) {
+          if (currentTime - this.lastTime > this.speed) {
+            this.img = this.frame.live[this.frameLiveIndex % this.frame.live.length]
+            this.frameLiveIndex++
+          }
+        }
+      }
+      paint(context) {
+        context.drawImage(this.img, this.x, this.y)
+      }
+      // 发射子弹
+      shoot() {
+        let currentTime = new Date().getTime()
+        if (currentTime - this.lastShootTime > this.shootInterval) {
+          let bullet = new Bullet(BULLET, this.x + this.width / 2 - BULLET.width / 2, this.y - BULLET.height)
+          this.bulletList.push(bullet)
+          bullet.paint(context)
+          this.lastShootTime = currentTime
+        }
+      }
+    }
+    // 创建一个我方飞机实例
+    const HERO = {
+      x: (w - 99) / 2,
+      y: (h - 124) - 20,
+      width: 99,
+      height: 124,
+      frame: hero_frame,
+      speed: 10,
+      shootInterval: 30
+    }
+    const hero = new Hero(HERO)
+
+
+    // 注册canvas的点击事件
+    canvas.onclick = function (e) {
+      let x = e.clientX - canvas.offsetLeft
+      let y = e.clientY - canvas.offsetTop
+      // 点击开始游戏按钮，状态如果是未开始，则改成开始
+      const playBtnX = (w - playBtn.width) / 2
+      const playBtnY = (h - playBtn.height) / 2 + 70
+      if (x >= playBtnX && x <= playBtnX + playBtn.width && y >= playBtnY && y <= playBtnY + playBtn.height) {
+        if (state === START) {
+          state = STARTING
+        }
+      }
+    }
+    // pc端鼠标移动事件
+    canvas.onmousemove = function (e) {
+      // 飞机跟随鼠标移动
+      if (state === RUNNING) {
+        const ev = e || window.event
+        let x = ev.clientX - canvas.offsetLeft
+        let y = ev.clientY - canvas.offsetTop
+        if (x < hero.width / 2) x = hero.width / 2
+        if (x > w - hero.width / 2) x = w - hero.width / 2
+        if (y < hero.height / 2) y = hero.height / 2
+        if (y > h - hero.height / 2) y = h - hero.height / 2
+        hero.x = x - hero.width / 2
+        hero.y = y - hero.height / 2
+      }
+    }
+    // 移动端手指滑动事件
+    canvas.ontouchmove = function (e) {
+      // 飞机跟随鼠标移动
+      if (state === RUNNING) {
+        const ev = e.targetTouches[0]
+        let x = ev.clientX - canvas.offsetLeft
+        let y = ev.clientY - canvas.offsetTop
+        if (x < hero.width / 2) x = hero.width / 2
+        if (x > w - hero.width / 2) x = w - hero.width / 2
+        if (y < hero.height / 2) y = hero.height / 2
+        if (y > h - hero.height / 2) y = h - hero.height / 2
+        hero.x = x - hero.width / 2
+        hero.y = y - hero.height / 2
+      }
+    }
+
+    bg.onload = function () {
+      // 每隔10秒清空画布，重新绘制一遍
+      setInterval(() => {
+        context.clearRect(0, 0, canvas.width, canvas.height)
+        switch (state) {
+          case START:
+            console.log('还未开始');
+            // 渲染背景图并移动
+            sky.judge()
+            sky.paint(context)
+            // 渲染飞机大战LOGO
+            const scale = 0.7
+            context.drawImage(copyright, (w - copyright.width * scale) / 2, (h - copyright.height * scale) / 2 - 50, copyright.width * scale, copyright.height * scale)
+            context.drawImage(playBtn, (w - playBtn.width) / 2, (h - playBtn.height) / 2 + 70)
+            break;
+          case STARTING:
+            console.log('开始了');
+            // 渲染背景图并移动
+            sky.judge()
+            sky.paint(context)
+            // 飞机加载类 loading
+            loading.paint(context)
+            loading.judge()
+            break;
+          case RUNNING:
+            console.log('运行时');
+            // 渲染背景图并移动
+            sky.paint(context)
+            sky.judge()
+            // 渲染我方飞机和地方飞机
+            hero.judge()
+            hero.paint(context)
+            hero.shoot()
+            for (let i = 0; i < hero.bulletList.length; i++) {
+              hero.bulletList[i].move()
+              hero.bulletList[i].paint(context)
+            }
+            break;
+          case PAUSE:
+            console.log('暂停时');
+            // 渲染一个暂停图标
+            break;
+          case END:
+            console.log('结束时');
+            // 渲染一个GAME_OVER
+            break;
+        }
+      }, 10);
+    }
+  </script>
+</body>
+
+</html>
