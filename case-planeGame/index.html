@@ -175,23 +175,24 @@
     // 子弹类
     class Bullet {
       constructor(config, x, y) {
-        this.x = x
-        this.y = y
         this.width = config.width
         this.height = config.height
         this.img = config.image
+        this.x = x
+        this.y = y
         this.speed = config.speed
         this.lastTime = new Date().getTime()
       }
       paint(context) {
         context.drawImage(this.img, this.x, this.y)
       }
+      // 移动子弹
       move() {
-        let currentTime = new Date().getTime()
-        if (currentTime - this.lastTime > this.speed) {
-          this.y -= 5
-          this.lastTime = currentTime
-        }
+        this.y -= 2
+      }
+      // 子弹是否超出边界
+      outOfBounds() {
+        return this.y < -this.height
       }
     }
     const BULLET = {
@@ -214,8 +215,10 @@
         this.img = null // 当前展示的图片
         this.speed = config.speed
         this.lastTime = new Date().getTime()
-        this.lastShootTime = new Date().getTime() // 最后一次的射击时间
-        this.shootInterval = config.shootInterval // 发射子弹的间隔时间
+        // 最后一次的射击时间
+        this.lastShootTime = new Date().getTime()
+        // 发射子弹的间隔时间 
+        this.shootInterval = config.shootInterval
         this.bulletList = [] // 子弹夹数组
       }
       judge() {
@@ -249,10 +252,20 @@
       height: 124,
       frame: hero_frame,
       speed: 10,
-      shootInterval: 30
+      shootInterval: 200
     }
     const hero = new Hero(HERO)
 
+    // 敌机类
+    class Enemy {
+      constructor(config) {
+        // 敌机类型
+        this.type = config.type
+        // 敌机宽度
+        this.width = config.width
+
+      }
+    }
 
     // 注册canvas的点击事件
     canvas.onclick = function (e) {
@@ -298,6 +311,27 @@
       }
     }
 
+    // 全局函数，来判断所有的子弹/敌人组件
+    function judgeComponent() {
+      for (let i = 0; i < hero.bulletList.length; i++) {
+        hero.bulletList[i].move()
+      }
+    }
+    // 全局函数，来绘制所有的子弹/敌人组件
+    function paintComponent() {
+      for (let i = 0; i < hero.bulletList.length; i++) {
+        hero.bulletList[i].paint(context)
+      }
+    }
+    // 全局函数，来销毁所有的子弹/敌人组件
+    function deleteComponent() {
+      for (let i = 0; i < hero.bulletList.length; i++) {
+        if (hero.bulletList[i].outOfBounds()) {
+          hero.bulletList.splice(i, 1)
+        }
+      }
+    }
+
     bg.onload = function () {
       // 每隔10秒清空画布，重新绘制一遍
       setInterval(() => {
@@ -327,14 +361,13 @@
             // 渲染背景图并移动
             sky.paint(context)
             sky.judge()
-            // 渲染我方飞机和地方飞机
+            // 渲染我方飞机和敌方飞机
             hero.judge()
             hero.paint(context)
             hero.shoot()
-            for (let i = 0; i < hero.bulletList.length; i++) {
-              hero.bulletList[i].move()
-              hero.bulletList[i].paint(context)
-            }
+            judgeComponent()
+            paintComponent()
+            deleteComponent()
             break;
           case PAUSE:
             console.log('暂停时');
